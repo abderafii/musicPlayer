@@ -27,15 +27,24 @@ public class SongController {
     }
 
     @ResponseBody
-    @GetMapping("/songs")
-    public List<String> getAllSongs() throws IOException {
-        return songService.getAllSongs();
+    @GetMapping("/folders")
+    public List<String> getFolders() throws IOException {
+        return songService.getFolders();
     }
 
     @ResponseBody
-    @GetMapping("/songs/{fileName:.+}")
-    public ResponseEntity<Resource> playSong(@PathVariable String fileName) {
-        Resource resource = songService.getSong(fileName);
+    @GetMapping("/folders/{folderName}/songs")
+    public List<String> getSongsByFolder(@PathVariable String folderName) throws IOException {
+        return songService.getSongsByFolder(folderName);
+    }
+
+    @ResponseBody
+    @GetMapping("/songs/{folderName}/{fileName:.+}")
+    public ResponseEntity<Resource> playSong(
+            @PathVariable String folderName,
+            @PathVariable String fileName
+    ) {
+        Resource resource = songService.getSong(folderName, fileName);
 
         if (!resource.exists()) {
             return ResponseEntity.notFound().build();
