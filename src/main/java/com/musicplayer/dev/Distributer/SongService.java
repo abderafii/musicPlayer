@@ -60,4 +60,11 @@ public class SongService {
 
         return new FileSystemResource(filePath);
     }
+
+    public Path getSongPath(String folder, String fileName) {
+    return Paths.get(musicFolderPath)
+            .resolve(folder)
+            .resolve(fileName)
+            .normalize();
+}
 }

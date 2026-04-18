@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,9 +15,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class SongController {
 
     private final SongService songService;
+    private final Mp3ImageService mp3ImageService;
 
-    public SongController(SongService songService) {
+    public SongController(SongService songService, Mp3ImageService mp3ImageService) {
         this.songService = songService;
+        this.mp3ImageService = mp3ImageService;
     }
 
     @GetMapping("/")
@@ -39,7 +40,7 @@ public class SongController {
     }
 
     @ResponseBody
-    @GetMapping("/songs/{folderName}/{fileName:.+}")
+    @GetMapping("/songs/{folderName}/{fileName:.+\\.mp3}")
     public ResponseEntity<Resource> playSong(
             @PathVariable String folderName,
             @PathVariable String fileName
@@ -51,8 +52,30 @@ public class SongController {
         }
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
                 .contentType(MediaType.parseMediaType("audio/mpeg"))
                 .body(resource);
+    }
+
+    @ResponseBody
+    @GetMapping("/covers/{folder}/{fileName:.+\\.mp3}")
+    public ResponseEntity<byte[]> getCover(
+            @PathVariable String folder,
+            @PathVariable String fileName
+    ) {
+        try {
+            String path = songService.getSongPath(folder, fileName).toString();
+            byte[] image = mp3ImageService.extractImage(path);
+
+            if (image != null && image.length > 0) {
+                String mimeType = mp3ImageService.getImageMimeType(path);
+                return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(mimeType))
+                    .body(image);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }   
     }
 }

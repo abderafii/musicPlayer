@@ -53,14 +53,23 @@
             border-radius: 14px;
         }
 
-        .now-playing-label {
-            font-size: 12px;
-            color: #b3b3b3;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .now-playing-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-content: space-between;
         }
 
+        .hidden {
+            display: none;
+        }
+
+        #coverImage {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
         .song-title {
             font-size: 22px;
             font-weight: bold;
@@ -151,16 +160,19 @@
         <h1>My Music Player</h1>
 
         <div class="now-playing">
-            <div class="now-playing-label">Now playing</div>
-            <div id="currentSong" class="song-title">Nothing selected</div>
-            <div id="currentFolder" class="folder-title"></div>
+            <div class="now-playing-row">
+                <div id="currentSong" class="song-title">No Song selected</div>
+                <img id="coverImage"
+                    class="hidden"
+                    src=""
+                    alt="cover">
+            </div>
         </div>
 
         <audio id="player" controls></audio>
 
         <div class="controls">
             <button id="prevBtn">⏮ Previous</button>
-            <button id="playPauseBtn">▶ Play / Pause</button>
             <button id="nextBtn">⏭ Next</button>
             <button id="shuffleBtn">🎲 Shuffle Off</button>
             <button id="repeatBtn">🔁 Repeat Off</button>
@@ -187,10 +199,9 @@
     const folderList = document.getElementById('folderList');
     const songList = document.getElementById('songList');
     const currentSong = document.getElementById('currentSong');
-    const currentFolder = document.getElementById('currentFolder');
+    const coverImage = document.getElementById('coverImage');
 
     const prevBtn = document.getElementById('prevBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
     const nextBtn = document.getElementById('nextBtn');
     const shuffleBtn = document.getElementById('shuffleBtn');
     const repeatBtn = document.getElementById('repeatBtn');
@@ -200,10 +211,14 @@
 
     let folders = [];
     let songs = [];
-    let currentFolderName = '';
+    let selectedFolderName = '';
     let currentIndex = -1;
     let shuffleEnabled = false;
     let repeatMode = 0; // 0 off, 1 repeat all, 2 repeat one
+
+    coverImage.onerror = () => {
+        coverImage.src = '/default-cover.png';
+    };
 
     fetch('/folders')
         .then(response => response.json())
@@ -230,7 +245,7 @@
             const li = document.createElement('li');
             li.textContent = folder;
 
-            if (folder === currentFolderName) {
+            if (folder === selectedFolderName) {
                 li.classList.add('active-folder');
             }
 
@@ -246,15 +261,8 @@
         fetch('/folders/' + encodeURIComponent(folderName) + '/songs')
             .then(response => response.json())
             .then(data => {
-                currentFolderName = folderName;
+                selectedFolderName = folderName;
                 songs = data || [];
-                currentIndex = -1;
-                player.pause();
-                player.removeAttribute('src');
-                player.load();
-
-                currentSong.textContent = 'Nothing selected';
-                currentFolder.textContent = folderName;
 
                 renderFolders();
                 renderSongs();
@@ -296,16 +304,19 @@
     }
 
     function playSong(index) {
-        if (!currentFolderName || index < 0 || index >= songs.length) return;
+        if (!selectedFolderName || index < 0 || index >= songs.length) return;
 
         currentIndex = index;
         const fileName = songs[index];
 
-        player.src = '/songs/' + encodeURIComponent(currentFolderName) + '/' + encodeURIComponent(fileName);
+        player.src = '/songs/' + encodeURIComponent(selectedFolderName) + '/' + encodeURIComponent(fileName);
         player.play();
 
         currentSong.textContent = cleanName(fileName);
-        currentFolder.textContent = currentFolderName;
+
+        // 🎨 set cover image
+        coverImage.classList.remove('hidden');
+        coverImage.src = '/covers/' + encodeURIComponent(selectedFolderName) + '/' + encodeURIComponent(fileName);
         renderSongs();
     }
 
@@ -412,7 +423,6 @@
     });
 
     prevBtn.addEventListener('click', playPrevious);
-    playPauseBtn.addEventListener('click', playPause);
     nextBtn.addEventListener('click', playNext);
     shuffleBtn.addEventListener('click', toggleShuffle);
     repeatBtn.addEventListener('click', toggleRepeat);
