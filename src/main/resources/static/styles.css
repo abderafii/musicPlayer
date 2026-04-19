@@ -1,0 +1,124 @@
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: #ffffff;
+}
+.app {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 24px;
+}
+.player-card {
+    background: #181818;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+h1, h2 {
+    margin-top: 0;
+}
+.layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+}
+.panel {
+    background: #202020;
+    border-radius: 14px;
+    padding: 16px;
+}
+.now-playing {
+    margin: 16px 0 20px;
+    padding: 16px;
+    background: #222222;
+    border-radius: 14px;
+}
+.now-playing-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: space-between;
+}
+.hidden {
+    display: none;
+}
+#coverImage {
+    width: 120px;
+    height: 120px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+.song-title {
+    font-size: 22px;
+    font-weight: bold;
+    word-break: break-word;
+}
+.folder-title {
+    color: #b3b3b3;
+    margin-top: 6px;
+}
+audio {
+    width: 100%;
+    margin: 14px 0 18px;
+}
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+button {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 16px;
+    background: #2a2a2a;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+button:hover {
+    background: #3a3a3a;
+}
+button.active {
+    background: #1db954;
+    color: #000000;
+    font-weight: bold;
+}
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+li {
+    background: #2a2a2a;
+    margin-bottom: 8px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+li:hover {
+    background: #363636;
+}
+li.active-song, li.active-folder {
+    background: #1db954;
+    color: #000000;
+    font-weight: bold;
+}
+.small {
+    color: #b3b3b3;
+    font-size: 13px;
+    margin-top: 10px;
+}
+.empty {
+    color: #b3b3b3;
+}
+@media (max-width: 800px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+}

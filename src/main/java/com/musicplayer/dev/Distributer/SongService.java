@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,6 @@ public class SongService {
 
     public List<String> getFolders() throws IOException {
         Path musicFolder = Paths.get(musicFolderPath);
-
         if (!Files.exists(musicFolder) || !Files.isDirectory(musicFolder)) {
             return List.of();
         }
@@ -35,6 +35,7 @@ public class SongService {
         }
     }
 
+    @Cacheable(value="songsByFolder", key="#folderName")
     public List<String> getSongsByFolder(String folderName) throws IOException {
         Path folderPath = Paths.get(musicFolderPath).resolve(folderName).normalize();
 

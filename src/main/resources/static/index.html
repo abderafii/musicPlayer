@@ -5,437 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mazoki 🎧</title>
     <link rel="icon" type="image/png" href="favicon.png" sizes="96x96">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #121212;
-            color: #ffffff;
-        }
-
-        .app {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 24px;
-        }
-
-        .player-card {
-            background: #181818;
-            border-radius: 18px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-        }
-
-        h1, h2 {
-            margin-top: 0;
-        }
-
-        .layout {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 24px;
-        }
-
-        .panel {
-            background: #202020;
-            border-radius: 14px;
-            padding: 16px;
-        }
-
-        .now-playing {
-            margin: 16px 0 20px;
-            padding: 16px;
-            background: #222222;
-            border-radius: 14px;
-        }
-
-        .now-playing-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            justify-content: space-between;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        #coverImage {
-            width: 120px;
-            height: 120px;
-            border-radius: 10px;
-            object-fit: cover;
-        }
-        .song-title {
-            font-size: 22px;
-            font-weight: bold;
-            word-break: break-word;
-        }
-
-        .folder-title {
-            color: #b3b3b3;
-            margin-top: 6px;
-        }
-
-        audio {
-            width: 100%;
-            margin: 14px 0 18px;
-        }
-
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-            justify-content: center;
-        }
-
-        button {
-            border: none;
-            border-radius: 999px;
-            padding: 10px 16px;
-            background: #2a2a2a;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        button:hover {
-            background: #3a3a3a;
-        }
-
-        button.active {
-            background: #1db954;
-            color: #000000;
-            font-weight: bold;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        li {
-            background: #2a2a2a;
-            margin-bottom: 8px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            cursor: pointer;
-        }
-
-        li:hover {
-            background: #363636;
-        }
-
-        li.active-song, li.active-folder {
-            background: #1db954;
-            color: #000000;
-            font-weight: bold;
-        }
-
-        .small {
-            color: #b3b3b3;
-            font-size: 13px;
-            margin-top: 10px;
-        }
-
-        .empty {
-            color: #b3b3b3;
-        }
-
-        @media (max-width: 800px) {
-            .layout {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="app">
-    <div class="player-card">
-        <h1>My Music Player</h1>
+    <div class="app">
+        <div class="player-card">
+            <h1>My Music Player</h1>
 
-        <div class="now-playing">
-            <div class="now-playing-row">
-                <div id="currentSong" class="song-title">No Song selected</div>
-                <img id="coverImage"
-                    class="hidden"
-                    src=""
-                    alt="cover">
-            </div>
-        </div>
-
-        <audio id="player" controls></audio>
-
-        <div class="controls">
-            <button id="prevBtn">⏮ Previous</button>
-            <button id="nextBtn">⏭ Next</button>
-            <button id="shuffleBtn">🎲 Shuffle: Off</button>
-            <button id="repeatBtn">🔁 Repeat: Off</button>
-        </div>
-
-        <div class="layout">
-            <div class="panel">
-                <h2>Albums</h2>
-                <ul id="folderList"></ul>
-                <div id="folderEmpty" class="empty" style="display:none;">No albums found.</div>
+            <div class="now-playing">
+                <div class="now-playing-row">
+                    <div id="currentSong" class="song-title">No Song selected</div>
+                    <img id="coverImage"
+                        class="hidden"
+                        src=""
+                        alt="cover">
+                </div>
             </div>
 
-            <div class="panel">
-                <h2>Songs</h2>
-                <ul id="songList"></ul>
-                <div id="songEmpty" class="empty">Select a folder.</div>
+            <audio id="player" controls></audio>
+
+            <div class="controls">
+                <button id="prevBtn">⏮ Previous</button>
+                <button id="nextBtn">⏭ Next</button>
+                <button id="shuffleBtn">🎲 Shuffle: Off</button>
+                <button id="repeatBtn">🔁 Repeat: Off</button>
+            </div>
+
+            <div class="layout">
+                <div class="panel">
+                    <h2>Albums</h2>
+                    <ul id="folderList"></ul>
+                    <div id="folderEmpty" class="empty" style="display:none;">No albums found.</div>
+                </div>
+
+                <div class="panel">
+                    <h2>Songs</h2>
+                    <ul id="songList"></ul>
+                    <div id="songEmpty" class="empty">Select a folder.</div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    const player = document.getElementById('player');
-    const folderList = document.getElementById('folderList');
-    const songList = document.getElementById('songList');
-    const currentSong = document.getElementById('currentSong');
-    const coverImage = document.getElementById('coverImage');
-
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const shuffleBtn = document.getElementById('shuffleBtn');
-    const repeatBtn = document.getElementById('repeatBtn');
-
-    const folderEmpty = document.getElementById('folderEmpty');
-    const songEmpty = document.getElementById('songEmpty');
-
-    let folders = [];
-    let songs = [];
-    let selectedFolderName = '';
-    let selectedSongName = '';
-    let shuffleEnabled = false;
-    let repeatMode = 0; // 0 off, 1 repeat all, 2 repeat one
-
-    coverImage.onerror = () => {
-        coverImage.src = '/default-cover.png';
-    };
-
-    fetch('/folders')
-        .then(response => response.json())
-        .then(data => {
-            folders = data || [];
-
-            if (folders.length === 0) {
-                folderEmpty.style.display = 'block';
-                return;
-            }
-
-            renderFolders();
-        })
-        .catch(error => {
-            console.error('Failed to load folders:', error);
-            folderEmpty.style.display = 'block';
-            folderEmpty.textContent = 'Could not load folders.';
-        });
-
-    function renderFolders() {
-        folderList.innerHTML = '';
-
-        folders.forEach(folder => {
-            const li = document.createElement('li');
-            li.textContent = folder;
-
-            if (folder === selectedFolderName) {
-                li.classList.add('active-folder');
-            }
-
-            li.onclick = () => {
-                loadFolder(folder);
-            };
-
-            folderList.appendChild(li);
-        });
-    }
-
-    function loadFolder(folderName) {
-        fetch('/folders/' + encodeURIComponent(folderName) + '/songs')
-            .then(response => response.json())
-            .then(data => {
-                selectedFolderName = folderName;
-                songs = data || [];
-
-                renderFolders();
-                renderSongs();
-            })
-            .catch(error => {
-                console.error('Failed to load songs:', error);
-            });
-    }
-
-    function renderSongs() {
-        songList.innerHTML = '';
-
-        if (songs.length === 0) {
-            songEmpty.style.display = 'block';
-            songEmpty.textContent = 'No songs found in this folder.';
-            return;
-        }
-
-        songEmpty.style.display = 'none';
-
-        songs.forEach((song) => {
-            const li = document.createElement('li');
-            li.textContent = cleanName(song);
-
-            if (song === selectedSongName) {
-                li.classList.add('active-song');
-            }
-
-            li.onclick = () => {
-                playSong(song);
-            };
-
-            songList.appendChild(li);
-        });
-    }
-
-    function cleanName(songName) {
-        return songName.replace(/\.mp3$/i, '');
-    }
-
-    function playSong(songName) {
-        if (!selectedFolderName || !songName) return;
-
-        selectedSongName = songName;
-
-        player.src = '/songs/' + encodeURIComponent(selectedFolderName) + '/' + encodeURIComponent(songName);
-        player.play();
-
-        currentSong.textContent = cleanName(songName);
-
-        // 🎨 set cover image
-        coverImage.classList.remove('hidden');
-        coverImage.src = '/covers/' + encodeURIComponent(selectedFolderName) + '/' + encodeURIComponent(songName);
-        renderSongs();
-    }
-
-    function playPause() {
-        if (!player.src && songs.length > 0) {
-            playSong(0);
-            return;
-        }
-
-        if (player.paused) {
-            player.play();
-        } else {
-            player.pause();
-        }
-    }
-
-    function getCurrentSongIndex() {
-        return songs.indexOf(song => song === selectedSongName);
-    }
-
-    function playNext() {
-        if (songs.length === 0) return;
-
-        if (shuffleEnabled) {
-            if (songs.length === 1) {
-                playSong(songs[0]);
-                return;
-            }
-
-            let nextSong;
-            do {
-                nextSong = songs[Math.floor(Math.random() * songs.length)];
-            } while (nextSong === selectedSongName);
-
-            playSong(nextSong);
-            return;
-        }
-
-        const currentIndex = getCurrentSongIndex();
-
-        if (currentIndex < songs.length - 1) {
-            playSong(songs[currentIndex + 1]);
-        } else if (repeatMode === 1) {
-            playSong(songs[0]);
-        }
-    }
-
-    function playPrevious() {
-        if (songs.length === 0) return;
-
-        if (shuffleEnabled) {
-            if (songs.length === 1) {
-                playSong(songs[0]);
-                return;
-            }
-
-            let prevSong;
-            do {
-                prevSong = songs[Math.floor(Math.random() * songs.length)];
-            } while (prevSong === selectedSongName);
-
-            playSong(prevSong);
-            return;
-        }
-
-        const currentIndex = getCurrentSongIndex();
-
-        if (currentIndex > 0) {
-            playSong(songs[currentIndex - 1]);
-        } else if (repeatMode === 1) {
-            playSong(songs[songs.length - 1]);
-        }
-    }
-
-    function toggleShuffle() {
-        shuffleEnabled = !shuffleEnabled;
-        shuffleBtn.textContent = shuffleEnabled ? '🎲 Shuffle: On' : '🎲 Shuffle: Off';
-        shuffleBtn.classList.toggle('active', shuffleEnabled);
-    }
-
-    function toggleRepeat() {
-        repeatMode = (repeatMode + 1) % 3;
-
-        if (repeatMode === 0) {
-            repeatBtn.textContent = '🔁 Repeat: Off';
-            repeatBtn.classList.remove('active');
-            player.loop = false;
-        } else if (repeatMode === 1) {
-            repeatBtn.textContent = '🔁 Repeat: All';
-            repeatBtn.classList.add('active');
-            player.loop = false;
-        } else {
-            repeatBtn.textContent = '🔂 Repeat: One';
-            repeatBtn.classList.add('active');
-            player.loop = true;
-        }
-    }
-
-    player.addEventListener('ended', () => {
-        if (repeatMode === 2) return;
-
-        if (shuffleEnabled) {
-            playNext();
-            return;
-        }
-
-        const currentIndex = getCurrentSongIndex();
-
-        if (currentIndex < songs.length - 1) {
-            playSong(songs[currentIndex + 1]);
-        } else if (repeatMode === 1) {
-            playSong(songs[0]);
-        }
-    });
-
-    prevBtn.addEventListener('click', playPrevious);
-    nextBtn.addEventListener('click', playNext);
-    shuffleBtn.addEventListener('click', toggleShuffle);
-    repeatBtn.addEventListener('click', toggleRepeat);
-</script>
+    <script src="script.js"></script>
 </body>
 </html>
