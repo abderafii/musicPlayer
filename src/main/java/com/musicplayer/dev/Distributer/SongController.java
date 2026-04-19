@@ -80,17 +80,10 @@ public class SongController {
             String stringPath = path.toString();
             byte[] image = mp3ImageService.extractImage(stringPath);
 
-            long lastModified = Files.getLastModifiedTime(path).toMillis();
-            long size = Files.size(path);
-            String etag = "\"" + size + "-" + lastModified + "\"";
-
             if (image != null && image.length > 0) {
                 String mimeType = mp3ImageService.getImageMimeType(stringPath);
                 return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(mimeType))
-                    .contentLength(size)
-                    .lastModified(lastModified)
-                    .eTag(etag)
                     .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic())
                     .body(image);
             } else {

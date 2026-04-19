@@ -10,6 +10,6 @@ public class CacheConfig {
     
     @Bean
     public CacheManager cacheManager(){
-        return new ConcurrentMapCacheManager("folders", "songsByFolder", "song", "cover");
+        return new ConcurrentMapCacheManager("songsByFolder");
     }
 }
